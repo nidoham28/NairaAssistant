@@ -1,4 +1,4 @@
-package io.naira.assistant.ui.screen
+package io.naira.assistant.presentation.splash.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode

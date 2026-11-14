@@ -1,4 +1,4 @@
-package io.naira.assistant.ui.theme
+package io.naira.assistant.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

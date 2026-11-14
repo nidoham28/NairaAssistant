@@ -107,9 +107,9 @@ Persist settings using the existing repository/service architecture, validate pr
 
 ## Home UI and bottom navigation
 
-- Place the navigation drawer control at the top left, centered horizontal `NAIRA` branding in the middle, and the notifications control at the top right. Preserve these positions across supported screen sizes and account for system insets.
-- Give drawer and notification controls clear accessible labels and touch targets. Reflect unread notification state accessibly when the product supports it; do not invent notification behavior or counts.
-- Use a bottom navigation bar with these five items in this order: **Home**, **Chat**, **Long mic**, **Memories**, **Library**. Use the spelling `Library` in UI text.
+- Place the settings control at the top left, centered horizontal `NAIRA` branding in the middle, and the notifications control at the top right. Preserve these positions across supported screen sizes and account for system insets.
+- Give settings and notification controls clear accessible labels and touch targets. Reflect unread notification state accessibly when the product supports it; do not invent notification behavior or counts.
+- Use a bottom navigation bar with these five items in this order: **Home**, **Chat**, **Long mic**, **Camera**, **Library**. Use the spelling `Library` in UI text.
 - Treat **Long mic** as the prominent microphone entry/action in the center of the bar. Inspect the existing interaction before changing it; do not assume tap, long-press, or hold-to-talk semantics. Make its idle, listening/recording, processing, and unavailable/permission-denied states distinguishable and accessible.
 - Keep navigation state, selected-tab indication, labels, and icons consistent across destinations. Respect the app's dark-only visual design, font-size setting, and accessibility requirements on supported Android versions.
 - Microphone activation must be explicit and observable. Never start or continue capture silently; honor the centralized microphone permission setting and Android runtime permission state, and accurately report when recording cannot start.

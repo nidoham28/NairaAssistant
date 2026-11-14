@@ -1,4 +1,4 @@
-package io.naira.assistant.ui.theme
+package io.naira.assistant.presentation.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
