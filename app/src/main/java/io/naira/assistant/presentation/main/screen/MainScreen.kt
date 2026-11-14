@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -66,12 +67,12 @@ fun MainScreen() {
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { showUnavailable("Settings") },
-                        modifier = Modifier.testTag("open-settings"),
+                        onClick = { showUnavailable("Options") },
+                        modifier = Modifier.testTag("open-options"),
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Settings,
-                            contentDescription = "Settings",
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "Options",
                         )
                     }
                 },
