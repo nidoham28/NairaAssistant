@@ -10,17 +10,24 @@ import io.naira.assistant.ui.screen.SplashScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val navigateToMain: () -> Unit = {
+        navController.navigate(AppDestinations.MAIN) {
+            popUpTo(AppDestinations.SPLASH) { inclusive = true }
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = AppDestinations.SPLASH
     ) {
         composable(AppDestinations.SPLASH) {
             SplashScreen(
-                onNavigateToMain = {
-                    navController.navigate(AppDestinations.MAIN) {
-                        popUpTo(AppDestinations.SPLASH) { inclusive = true }
-                    }
-                }
+                isChecking = false,
+                isOffline = false,
+                canContinueOffline = false,
+                onRetry = {},
+                onContinueOffline = navigateToMain,
+                onNavigateToMain = navigateToMain,
             )
         }
 

@@ -1,3 +1,7 @@
+/*
+ * Must Read AGENTS.md for VS-Code, Codex, ZCode everything accept this guideline.
+ */
+
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 

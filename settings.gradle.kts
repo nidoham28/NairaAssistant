@@ -1,3 +1,7 @@
+/*
+ * Must Read AGENTS.md for VS-Code, Codex, ZCode everything accept this guideline.
+ */
+
 pluginManagement {
     includeBuild("build-logic")
 
