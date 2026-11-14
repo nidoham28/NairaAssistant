@@ -34,5 +34,19 @@ The Gradle module and Android source-set paths remain unchanged. Preserve naviga
 - [x] Replace the drawer with a top-left Settings action; keep settings behavior explicit until a Settings screen exists.
 - [x] Update focused Compose tests; `:app:testDebugUnitTest`, `:app:compileDebugAndroidTestKotlin`, and `:app:assembleDebug` pass.
 
+#### Long mic floating action
+
+- [x] Replace the center Long mic navigation item with a centered floating action button, preserving its unavailable feedback and no-capture behavior.
+- [x] Preserve a center slot in the four-item bottom bar and verify top action placement and navigation order.
+- [x] Run app unit tests, Android test compilation, and debug assembly.
+- [x] Enlarge the FAB and overlap it across the navigation bar's top edge; add geometry assertions and compile the instrumentation tests.
+
 Keep the existing navigation and app identity; do not imply microphone capture, camera access, or unavailable destination behavior is implemented.
 The connected Android device already has `io.naira.assistant` installed, so instrumentation tests were compiled but not run to avoid replacing that installation. Android's [NavigationBar guidance](https://developer.android.com/develop/ui/compose/components/navigation-bar) supports three to five compact destinations; [Compose semantics guidance](https://developer.android.com/develop/ui/compose/accessibility/semantics) informed accessible labels and the Long mic unavailable state. A scholarly search found no directly relevant research paper for this screen implementation.
+
+#### Home package organization
+
+- [x] Place the Home screen under `presentation/home/main/screen`.
+- [x] Place Home content and bottom navigation under `presentation/home/main/component`.
+- [x] Move shared Home glyphs into a focused component file; update imports and tests, then verify the app.
+- [x] Run app unit tests, Android test compilation, and debug assembly.

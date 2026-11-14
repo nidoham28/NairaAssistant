@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import io.naira.assistant.presentation.home.screen.MainScreen
+import io.naira.assistant.presentation.main.screen.MainScreen
 import io.naira.assistant.presentation.splash.screen.SplashScreen
 
 @Composable
