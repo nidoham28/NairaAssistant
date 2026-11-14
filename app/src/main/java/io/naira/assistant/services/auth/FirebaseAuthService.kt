@@ -1,16 +1,29 @@
 package io.naira.assistant.services.auth
 
+import android.content.Context
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
 
 /**
- * Provides email/password authentication through Firebase Auth.
+ * Provides email/password and Google authentication through Firebase Auth.
  *
  * Firebase Auth persists the session. Registration signs the new account in immediately;
- * password recovery is completed through Firebase's email action link.
+ * password recovery is completed through Firebase's email action link. Google credentials
+ * are retrieved with Credential Manager and exchanged for a Firebase credential without
+ * logging or persisting the ID token.
  */
 class FirebaseAuthService(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
@@ -31,6 +44,49 @@ class FirebaseAuthService(
             auth.createUserWithEmailAndPassword(email.trim(), password).await()
         }
 
+    /**
+     * Signs in with a Google account selected through Credential Manager.
+     *
+     * [serverClientId] must be the Firebase project's web OAuth client ID. Cancellation,
+     * Credential Manager failures, token parsing failures, and Firebase errors are returned
+     * as failures; coroutine cancellation is rethrown.
+     */
+    suspend fun signInWithGoogle(context: Context, serverClientId: String): Result<Unit> =
+        try {
+            val googleIdOption = GetGoogleIdOption.Builder()
+                .setServerClientId(serverClientId)
+                .setFilterByAuthorizedAccounts(false)
+                .build()
+            val request = GetCredentialRequest.Builder()
+                .addCredentialOption(googleIdOption)
+                .build()
+            val credential = CredentialManager.create(context)
+                .getCredential(context, request)
+                .credential
+
+            val idToken = if (
+                credential is CustomCredential &&
+                credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+            ) {
+                GoogleIdTokenCredential.createFrom(credential.data).idToken
+            } else {
+                return Result.failure(
+                    IllegalStateException("Credential Manager returned an unsupported credential type."),
+                )
+            }
+
+            auth.signInWithCredential(GoogleAuthProvider.getCredential(idToken, null)).await()
+            Result.success(Unit)
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (error: GetCredentialException) {
+            Result.failure(error)
+        } catch (error: GoogleIdTokenParsingException) {
+            Result.failure(error)
+        } catch (error: FirebaseException) {
+            Result.failure(error)
+        }
+
     /** Requests Firebase's hosted password-reset email for [email]. */
     suspend fun sendPasswordResetEmail(email: String): Result<Unit> =
         authRequest {
@@ -47,6 +103,14 @@ class FirebaseAuthService(
         return FirebaseAuthValidation.friendlyMessage(errorCode)
     }
 
+    /** Returns true when the user explicitly dismissed the Credential Manager UI. */
+    fun isGoogleSignInCancelled(error: Throwable): Boolean =
+        FirebaseAuthValidation.isGoogleSignInCancelled(error)
+
+    /** Converts Google sign-in failures into user-facing messages without exposing tokens. */
+    fun googleSignInMessage(error: Throwable): String =
+        FirebaseAuthValidation.googleSignInMessage(error)
+
     private suspend fun authRequest(request: suspend () -> Unit): Result<Unit> =
         try {
             request()
@@ -56,7 +120,6 @@ class FirebaseAuthService(
         } catch (error: FirebaseException) {
             Result.failure(error)
         }
-
 }
 
 internal object FirebaseAuthValidation {
@@ -86,5 +149,36 @@ internal object FirebaseAuthValidation {
             "ERROR_OPERATION_NOT_ALLOWED" ->
                 "Email/password sign-in is not enabled for this Firebase project."
             else -> "Authentication failed. Please try again."
+        }
+
+    fun isGoogleSignInCancelled(error: Throwable): Boolean =
+        error is GetCredentialCancellationException
+
+    fun googleSignInMessage(error: Throwable): String =
+        when (error) {
+            is GetCredentialCancellationException -> "Google sign-in was canceled."
+            is NoCredentialException ->
+                "No eligible Google account is available on this device."
+            is GoogleIdTokenParsingException ->
+                "Google sign-in couldn't be verified. Try again."
+            is FirebaseAuthException -> googleSignInMessage(error.errorCode)
+            else -> "Google sign-in failed. Please try again."
+        }
+
+    fun googleSignInMessage(errorCode: String?): String =
+        when (errorCode) {
+            "ERROR_OPERATION_NOT_ALLOWED" ->
+                "Google sign-in is not enabled for this Firebase project."
+            "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL" ->
+                "This email already uses another sign-in method. Sign in with that method first."
+            "ERROR_CREDENTIAL_ALREADY_IN_USE" ->
+                "This Google account is already linked to another account."
+            "ERROR_INVALID_CREDENTIAL" ->
+                "Google sign-in couldn't be verified. Try again."
+            "ERROR_TOO_MANY_REQUESTS" ->
+                "Too many attempts. Wait a little and try again."
+            "ERROR_NETWORK_REQUEST_FAILED" ->
+                "Couldn't connect to Firebase. Check your internet connection and try again."
+            else -> "Google sign-in failed. Please try again."
         }
 }

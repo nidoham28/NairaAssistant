@@ -28,7 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
@@ -36,6 +38,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import io.naira.assistant.R
 import io.naira.assistant.presentation.auth.component.AuthFieldShape
 import io.naira.assistant.presentation.auth.component.AuthFooter
 import io.naira.assistant.presentation.auth.component.AuthHeader
@@ -98,6 +101,8 @@ fun LoginScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val googleServerClientId = stringResource(R.string.default_web_client_id)
     val focusManager = LocalFocusManager.current
     val passwordFocus = remember { FocusRequester() }
 
@@ -136,6 +141,34 @@ fun LoginScreen(
                             authService.friendlyMessage(it),
                             isError = true,
                         )
+                    }
+            } finally {
+                loading = false
+            }
+        }
+    }
+
+    fun signInWithGoogle() {
+        if (loading) return
+        focusManager.clearFocus()
+        loading = true
+        scope.launch {
+            try {
+                authService.signInWithGoogle(context, googleServerClientId)
+                    .onSuccess {
+                        onLoggedIn?.invoke() ?: scope.showFeedback(
+                            snackbarHostState,
+                            "Signed in successfully.",
+                        )
+                    }
+                    .onFailure { error ->
+                        if (!authService.isGoogleSignInCancelled(error)) {
+                            scope.showFeedback(
+                                snackbarHostState,
+                                authService.googleSignInMessage(error),
+                                isError = true,
+                            )
+                        }
                     }
             } finally {
                 loading = false
@@ -221,13 +254,9 @@ fun LoginScreen(
         SocialDivider()
         Spacer(Modifier.height(24.dp))
 
-        // Google sign-in isn't wired up yet; see notes for the OAuth approach.
         GoogleButton(
             enabled = !loading,
-            onClick = {
-                focusManager.clearFocus()
-                scope.showFeedback(snackbarHostState, "Google sign-in isn't set up yet.")
-            },
+            onClick = { signInWithGoogle() },
         )
         Spacer(Modifier.height(28.dp))
 

@@ -65,7 +65,16 @@ Keep the existing top bar and four-destination order. These pages are empty scaf
 - [x] Remove Supabase-specific auth contracts and references from the staged auth screens.
 - [x] Add a Firebase Auth service for email/password sign-in, immediate sign-in after registration, password-reset email, password validation, and safe user-facing errors.
 - [x] Connect Splash/AppNavigation to Login, Register, Password reset, and the authenticated Home route.
-- [x] Preserve the Google button as an explicit unavailable placeholder; do not add Google OAuth in this change.
+- [x] Keep Google sign-in unavailable during the initial email/password migration; a later plan adds it through Credential Manager.
 - [x] Add focused auth validation tests and run `:app:testDebugUnitTest`, `:app:compileDebugAndroidTestKotlin`, and `:app:assembleDebug`.
 
 New email/password accounts sign in immediately; Firebase Console provider configuration remains an external prerequisite. Password reset uses Firebase's email action flow rather than a provider-specific in-app callback. Firebase Auth replaces only authentication; do not delete or migrate remote Supabase data. Firebase's [Android email/password guide](https://firebase.google.com/docs/auth/android/password-auth) and [Android Auth guide](https://firebase.google.com/docs/auth/android/start) informed the integration. A related 2024 conference proceedings case study is [Milojković, Živković, and Bačanin Džakula, “Agile Multi-user Android Application Development With Firebase: Authentication, Authorization, and Profile Management”](https://doi.org/10.15308/sinteza-2024-405-412); it provides application-level context, while Firebase's current official docs remain authoritative for SDK behavior.
+
+### Firebase Google sign-in
+
+- [x] Add stable Credential Manager and Google ID dependencies.
+- [x] Implement Google ID token retrieval and exchange through Firebase Auth, with cancellation and provider errors surfaced appropriately.
+- [x] Wire the existing Google buttons on Login and Register to the shared Firebase auth/navigation flow.
+- [x] Add focused handling tests; `:app:testDebugUnitTest`, `:app:compileDebugAndroidTestKotlin`, and `:app:assembleDebug` pass. Android instrumentation tests were compiled, not run; live Firebase sign-in was not verified.
+
+Google sign-in requires Google to be enabled as a Firebase Authentication provider, the Android app's SHA-1 registered in Firebase, and an updated `google-services.json` with the web OAuth client. The Firebase project already contains a web OAuth client; provider enablement and SHA-1 were not verified. Follow Firebase's [Google sign-in guide](https://firebase.google.com/docs/auth/android/google-signin) and Android's [Credential Manager guide](https://developer.android.com/identity/sign-in/credential-manager-siwg). A scholarly search found no directly relevant paper on Credential Manager-based Google sign-in; the previously noted Firebase case study is not authoritative for these APIs.
