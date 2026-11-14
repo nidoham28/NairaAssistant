@@ -59,3 +59,13 @@ The connected Android device already has `io.naira.assistant` installed, so inst
 - [x] Run `:app:testDebugUnitTest`, `:app:compileDebugAndroidTestKotlin`, `:app:compileDebugKotlin`, and `:app:assembleDebug`.
 
 Keep the existing top bar and four-destination order. These pages are empty scaffolds; do not imply Chat, Camera, or Library functionality is implemented. Android's [NavigationBar guidance](https://developer.android.com/develop/ui/compose/components/navigation-bar) defines selected and click behavior for destination items, and [state-saving guidance](https://developer.android.com/develop/ui/compose/state-saving) supports using `rememberSaveable` for navigation-related UI state. A scholarly search found no directly relevant research paper.
+
+### Firebase Authentication
+
+- [x] Remove Supabase-specific auth contracts and references from the staged auth screens.
+- [x] Add a Firebase Auth service for email/password sign-in, immediate sign-in after registration, password-reset email, password validation, and safe user-facing errors.
+- [x] Connect Splash/AppNavigation to Login, Register, Password reset, and the authenticated Home route.
+- [x] Preserve the Google button as an explicit unavailable placeholder; do not add Google OAuth in this change.
+- [x] Add focused auth validation tests and run `:app:testDebugUnitTest`, `:app:compileDebugAndroidTestKotlin`, and `:app:assembleDebug`.
+
+New email/password accounts sign in immediately; Firebase Console provider configuration remains an external prerequisite. Password reset uses Firebase's email action flow rather than a provider-specific in-app callback. Firebase Auth replaces only authentication; do not delete or migrate remote Supabase data. Firebase's [Android email/password guide](https://firebase.google.com/docs/auth/android/password-auth) and [Android Auth guide](https://firebase.google.com/docs/auth/android/start) informed the integration. A related 2024 conference proceedings case study is [Milojković, Živković, and Bačanin Džakula, “Agile Multi-user Android Application Development With Firebase: Authentication, Authorization, and Profile Management”](https://doi.org/10.15308/sinteza-2024-405-412); it provides application-level context, while Firebase's current official docs remain authoritative for SDK behavior.
