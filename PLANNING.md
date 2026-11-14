@@ -50,3 +50,12 @@ The connected Android device already has `io.naira.assistant` installed, so inst
 - [x] Place Home content and bottom navigation under `presentation/home/main/component`.
 - [x] Move shared Home glyphs into a focused component file; update imports and tests, then verify the app.
 - [x] Run app unit tests, Android test compilation, and debug assembly.
+
+#### Empty bottom-nav destinations
+
+- [x] Add saveable selected-destination state for Home, Chat, Camera, and Library; keep Long mic as its existing unavailable action.
+- [x] Render an empty page for each selected destination and update navigation item selection on tap.
+- [x] Add Compose UI coverage for all four destinations, item selection, and preserved Long mic behavior.
+- [x] Run `:app:testDebugUnitTest`, `:app:compileDebugAndroidTestKotlin`, `:app:compileDebugKotlin`, and `:app:assembleDebug`.
+
+Keep the existing top bar and four-destination order. These pages are empty scaffolds; do not imply Chat, Camera, or Library functionality is implemented. Android's [NavigationBar guidance](https://developer.android.com/develop/ui/compose/components/navigation-bar) defines selected and click behavior for destination items, and [state-saving guidance](https://developer.android.com/develop/ui/compose/state-saving) supports using `rememberSaveable` for navigation-related UI state. A scholarly search found no directly relevant research paper.

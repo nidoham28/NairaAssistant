@@ -1,6 +1,7 @@
 package io.naira.assistant.presentation.home.main.screen
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -27,7 +28,7 @@ class MainScreenTest {
         }
 
         composeRule.onNodeWithTag("home-screen-brand").assertIsDisplayed()
-        composeRule.onNodeWithContentDescription("Settings").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Options").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Notifications").assertIsDisplayed()
         composeRule.onNodeWithContentDescription(
             "Long mic. Voice input is unavailable."
@@ -75,26 +76,36 @@ class MainScreenTest {
     }
 
     @Test
-    fun cameraEntryReportsUnavailableInsteadOfOpeningCamera() {
+    fun bottomNavigationOpensEachEmptyDestinationAndUpdatesSelection() {
         composeRule.setContent {
             NairaAssistantTheme(darkTheme = true) {
                 MainScreen()
             }
         }
 
-        composeRule.onNodeWithTag("home-nav-camera").performClick()
-        composeRule.onNodeWithText("Camera isn't available yet.").assertIsDisplayed()
+        composeRule.onNodeWithTag("destination-home").assertIsDisplayed()
+        composeRule.onNodeWithTag("home-nav-home").assertIsSelected()
+
+        listOf("chat", "camera", "library").forEach { destination ->
+            composeRule.onNodeWithTag("home-nav-$destination").performClick()
+            composeRule.onNodeWithTag("destination-$destination").assertIsDisplayed()
+            composeRule.onNodeWithTag("home-nav-$destination").assertIsSelected()
+        }
+
+        composeRule.onNodeWithTag("home-nav-home").performClick()
+        composeRule.onNodeWithTag("destination-home").assertIsDisplayed()
+        composeRule.onNodeWithTag("home-nav-home").assertIsSelected()
     }
 
     @Test
-    fun settingsActionReportsSettingsScreenIsUnavailable() {
+    fun optionsActionReportsOptionsScreenIsUnavailable() {
         composeRule.setContent {
             NairaAssistantTheme(darkTheme = true) {
                 MainScreen()
             }
         }
 
-        composeRule.onNodeWithContentDescription("Settings").performClick()
-        composeRule.onNodeWithText("Settings aren't available yet.").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Options").performClick()
+        composeRule.onNodeWithText("Options isn't available yet.").assertIsDisplayed()
     }
 }

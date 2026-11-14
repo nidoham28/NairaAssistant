@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -21,8 +20,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -31,19 +32,20 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.naira.assistant.presentation.main.component.MainContent
+import io.naira.assistant.presentation.main.component.MainDestination
 import io.naira.assistant.presentation.main.component.MainNavigationBar
 import io.naira.assistant.presentation.main.component.MicrophoneGlyph
 import kotlinx.coroutines.launch
 
 /**
- * Renders the Home destination and reports unavailable actions without starting microphone capture.
+ * Renders empty Home, Chat, Camera, and Library destinations without starting microphone capture.
  */
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun MainScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val selectedDestination = rememberSaveable { mutableStateOf(MainDestination.Home) }
 
     fun showUnavailable(message: String) {
         scope.launch {
@@ -95,7 +97,8 @@ fun MainScreen() {
         bottomBar = {
             Box {
                 MainNavigationBar(
-                    onUnavailable = { showUnavailable(it) },
+                    selectedDestination = selectedDestination.value,
+                    onDestinationSelected = { selectedDestination.value = it },
                     modifier = Modifier.testTag("home-bottom-navigation"),
                 )
                 FloatingActionButton(
@@ -119,13 +122,11 @@ fun MainScreen() {
             }
         },
     ) { innerPadding ->
-        MainContent(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            onOpenChat = { showUnavailable("Chat") },
-            onOpenCamera = { showUnavailable("Camera") },
-            onOpenLibrary = { showUnavailable("Library") },
+                .padding(innerPadding)
+                .testTag("destination-${selectedDestination.value.name.lowercase()}"),
         )
     }
 }
